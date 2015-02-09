@@ -1,0 +1,75 @@
+#!/bin/bash
+#==========================================================================================
+#scriptname: diffprice
+#purpose:  to search the price difference of two years given year, energy time and sector
+#=========================================================================================
+clear
+
+ #to test if the input year is in file
+ yearinrecord=($(cut -d';' -f1 eprice.csv | uniq ))
+ #function to test if a value is in an array or not
+ function contains() {
+      local n=$#
+      local value=${!n}
+      for ((i=1;i < $#;i++)) {
+          if [ "${!i}" == "${value}" ]; then
+              echo "y"
+              return 0
+          fi
+      }
+      echo "n"
+      return 1
+  }
+
+
+echo "Please input the first year:"
+read year1
+ # use above function contains to test if the input year in the record or not.
+  if [ $(contains "${yearinrecord[@]}" $year1) == "y" ]; then
+      echo "record contains $year1"
+  else
+      echo "This year $year1 is not in record. "
+    fi
+
+echo "Please input the second year:"
+read year2
+if [ $(contains "${yearinrecord[@]}" $year2) == "y" ]; then
+       echo "record contains $year2"
+   else
+       echo "This year $year2 is not in record. "
+     fi
+
+echo "Which sector you want to search:(C)ommercial,(I)ndustrial,(R)esidential or (T)ransportation?"
+read choice
+case $choice in
+     [Cc]) sector="Commercial" ;;
+     [Ii]) sector="Industrial" ;;
+     [Rr]) sector="Residential" ;;
+     [Tt]) sector="Transportation" ;;
+esac
+
+echo "which type of energy you want to search: (c)oal, (n)atural or (g)as?"
+read reply
+
+j=0
+ case $reply in
+   [Cc]) j=3;  etype="coal" ;;     #coal
+   [Nn]) j=4;  etype="natural";;     #natural
+   [Gg]) j=5;  etype="gas" ;;     #gas
+ esac
+ 
+
+#the following code search for the eprice of the given year, sector and energy tpye.   eprice1 for year1,eprice2 for year2
+eprice1=$(grep $year1 eprice.csv | grep  $sector | cut -d';' -"f$j" |  sed 's/;/ /g' | sed 's/\$/ /g')
+eprice2=$(grep $year2 eprice.csv | grep  $sector | cut -d';' -"f$j" |  sed 's/;/ /g' | sed 's/\$/ /g')
+epricediff=`echo "$eprice1-$eprice2"|bc`
+
+echo "=========================================Search Result============================================================"
+echo "The first year you input is $year1 and the price for $etype in the sector of $sector  energy price is "\$$eprice1""
+echo "The first year you input is $year2 and the price for $etype in the sector of $sector  energy price is "\$$eprice2""
+echo "The price difference  is: "\$$epricediff""
+
+read -p "Press any  key to continue..."
+#if time permit, want to do:
+#energy type gas contains a lot of empty string, how can this script handle empty string?
+#epricediff might have minus value how to show positive value.

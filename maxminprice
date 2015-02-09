@@ -1,0 +1,55 @@
+#!/bin/bash
+#==========================================================================
+#script name: maxminprice
+#purpose:     given energytype search for the highest and lowest energy type
+#             return the information of that record
+#=========================================================================
+clear
+echo "which type of energy you want to search:(c)oal, (n)atural,(g)as"
+echo ""
+read reply
+
+case $reply in 
+     [Cc]) etype="coal"; j=3 ;;
+     [Nn]) etype="natural"; j=4 ;;
+     [Gg]) etype="gas" ; j=5 ;;
+esac
+
+#echo $j
+
+#search for the highest price
+# yearinrecord=($(cut -d';' -f1 eprice.csv | uniq ))
+fieldprice=($(cut -d';' -f$j eprice.csv | sed 's/\$/ /g'))
+
+#echo ${fieldprice[*]}
+IFS=' '
+#echo "${ar[*]}" | sort -nr | head -n1
+# the following line: sort array according to its numverical value and reverse | head print the first 1 line with -n1 option
+hprice=($(echo "${fieldprice[*]}" | tr " " "\n" | sort -nr | head -n1))
+echo ""
+echo "highest price of $etype in record is : \$$hprice"
+
+grep $hprice eprice.csv | sed 's/;/ /g' | awk 'BEGIN {
+ print "                              highest price                                                            "
+ print "                     ================================                                                  "
+ print "year       sector               coal       natural   gas    "
+ print "-------------------------------------------------- ---------" }
+{ printf "%-10s %-20s %-10s %-10s %s\n", $1, $2,$3,$4,$5 }' 
+
+ lprice=($(echo "${fieldprice[*]}" | tr " " "\n" | sort -n | head -n1))
+echo ""
+
+echo "lowest price of $etype in record is: \$$lprice"
+ grep $lprice eprice.csv | sed 's/;/ /g' | awk 'BEGIN { 
+ print "                            lowest price                                                              " 
+ print "                     ================================                                                 "
+print "year       sector               coal       natural   gas    "
+print "-------------------------------------------------- ----------" }
+ { printf "%-10s %-20s %-10s %-10s %s\n", $1, $2,$3,$4,$5 }'
+
+
+
+
+
+read -p "Press any key to continue..........................."
+

@@ -1,0 +1,57 @@
+#!/bin/bash
+#==================================================================
+# Script Name:  yearlist
+# By:           C.L.
+# Date:         04-21-2014
+# Purepose:     Know the year, return the energy price of that year
+# Command Line: yearlist
+#==================================================================
+clear
+#read in the year need to be searched
+echo "Please enter the year:"	
+read year
+
+# The following command is to test if bash support arrary:
+whotest[0]='test' || (echo 'Failure: arrays not supported in this version of bash.' && exit 2)
+
+#to test if the input year is in file
+yearinrecord=($(cut -d';' -f1 eprice.csv | uniq ))
+
+#function to test if a value is in an array or not
+ function contains() {
+     local n=$#
+     local value=${!n}
+     for ((i=1;i < $#;i++)) {
+         if [ "${!i}" == "${value}" ]; then
+             echo "y"
+             return 0
+         fi
+     }
+     echo "n"
+     return 1
+ }
+# use above function contains to test if the input year in the record or not.
+if [ $(contains "${yearinrecord[@]}" $year) == "y" ]; then
+    echo "record contains $year."
+else 
+    echo "This year is not in record. "
+  fi
+
+
+#print report  with header:  the energy price of the year
+grep $year eprice.csv | sed 's/;/ /g'  > tfile1
+awk 'BEGIN { print "year     sector                 coal       natural   gas"
+                  print "-------------------------------------------------------------------------------------------------------" }
+
+  { printf "%-10s %-20s %-10s %-10s %s\n", $1, $2,$3,$4,$5 }' tfile1
+
+#finally delete temp file.
+tempfile=tfile1
+trap "rm -f $temp_file; exit" 0 1 2 3 15
+echo -n "Delete temp file tfile1? [y/n]:"
+read
+if  [ "$REPLY" =  "y" ] ; then
+    rm -f $tempfile
+ fi
+
+

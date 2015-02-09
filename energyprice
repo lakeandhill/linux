@@ -1,0 +1,25 @@
+#!/bin/bash
+loop=y
+while [ "$loop" = y ]
+do 
+  clear
+  tput cup 3 12; echo " energy price search interface"
+  tput cup 4 12; echo "==============================" 
+  tput cup 6 9; echo "S -want to search energy price in certain year?"
+  tput cup 7 9; echo "D-search for the price difference for two years:"
+  tput cup 8 9; echo "M-search for the highest and lowest price of the record?"
+  
+  tput cup 13 9 ; echo "q-quit"
+  read choice || continue  # read from keyboard input  and assign value to a variable named choice
+  case $choice in
+        [Ss]) ./yearlist ;;
+        [Dd]) ./diffprice ;;
+        [Mm]) ./maxminprice ;;
+        [Qq]) exit ;;
+         *) tput cup 14 4; echo "Invalid Code"; read choice ;;  #  *)  a default case that matches anaything
+   esac
+
+done
+
+
+
